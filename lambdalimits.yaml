@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "An AWS lambda function that deploys lambda functions to demonstrate limits"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  LambdaLimitsRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      RoleName: !Sub "${AWS::StackName}-LambdaLimitsRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action:
+              - "sts:AssumeRole"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+  LambdaLimitsPolicy:
+    Type: "AWS::IAM::Policy"
+    DependsOn: [LambdaLimitsRole]
+    Properties:
+      PolicyName: !Sub "${AWS::StackName}-LambdaLimitsRole"
+      Roles: [!Ref LambdaLimitsRole]
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ]
+          Resource:
+            - "arn:aws:logs:*:*:*"
+
+  BrokenLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-brokenlambda"
+      Handler: com.aws.lambdalimits.BrokenLambda
+      Runtime: java8
+      Timeout: 60
+      MemorySize: 768
+      CodeUri: target/LambdaLimits-1.0-SNAPSHOT-lambda_deployment_package_assembly.zip
+      Role: !GetAtt LambdaLimitsRole.Arn
+
+  GoodLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-goodlambda"
+      Handler: com.aws.lambdalimits.GoodLambda
+      Runtime: java8
+      Timeout: 60
+      MemorySize: 768
+      CodeUri: target/LambdaLimits-1.0-SNAPSHOT-lambda_deployment_package_assembly.zip
+      Role: !GetAtt LambdaLimitsRole.Arn
