@@ -4,9 +4,11 @@ Test code for replicating too many open files errors in AWS Lambda
 
 ### Introduction
 
-Improper file handling and socket bleed can cause isues with java Lambda functions resulting in:
+Improper file handling and socket bleed can cause issues with java Lambda functions resulting in:
 
 	java.io.IOException: Too many open files
+	
+See: [https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e145]()
 
 ### Implementation
 
